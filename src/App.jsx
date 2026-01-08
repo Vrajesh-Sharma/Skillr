@@ -1,0 +1,79 @@
+import { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { supabase } from './lib/supabase';
+
+// Pages
+import AuthPage from './pages/AuthPage';
+import ProfileSetup from './pages/ProfileSetup';
+import Dashboard from './pages/Dashboard';
+import Inbox from './pages/Inbox'; // Make sure you have this file created
+
+// Components
+import Navbar from './components/Navbar';
+
+export default function App() {
+  const [session, setSession] = useState(null);
+  const [hasProfile, setHasProfile] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    // Initial Session Check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) checkUserProfile(session.user.id);
+      else setChecking(false);
+    });
+
+    // Listen for Auth Changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) checkUserProfile(session.user.id);
+      else {
+        setHasProfile(false);
+        setChecking(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const checkUserProfile = async (id) => {
+    const { data } = await supabase
+      .from('skill_profiles') // Corrected to lowercase
+      .select('id')
+      .eq('id', id)
+      .single();
+    
+    setHasProfile(!!data);
+    setChecking(false);
+  };
+
+  if (checking) return (
+    <div className="h-screen bg-[#020617] flex items-center justify-center">
+      <div className="text-cyan-500 font-black animate-pulse tracking-widest">INITIALIZING...</div>
+    </div>
+  );
+
+  // 1. If not logged in -> Show Auth
+  if (!session) return <AuthPage />;
+
+  // 2. If logged in but no profile -> Show Setup
+  if (!hasProfile) return <ProfileSetup session={session} />;
+
+  // 3. Fully Authenticated -> Enable Routing
+  return (
+    <Router>
+      <div className="min-h-screen bg-[#020617] text-white selection:bg-cyan-500/30">
+        <div className="pb-32"> {/* Bottom padding so Navbar doesn't cover content */}
+          <Routes>
+            <Route path="/" element={<Dashboard session={session} />} />
+            <Route path="/inbox" element={<Inbox session={session} />} />
+            <Route path="/profile" element={<ProfileSetup session={session} />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </div>
+        <Navbar />
+      </div>
+    </Router>
+  );
+}
