@@ -1,3 +1,85 @@
+// import { useEffect, useState } from 'react';
+// import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+// import { supabase } from './lib/supabase';
+
+// // Pages
+// import AuthPage from './pages/AuthPage';
+// import ProfileSetup from './pages/ProfileSetup';
+// import Profile from './pages/Profile';
+// import Dashboard from './pages/Dashboard';
+// import Inbox from './pages/Inbox'; // Make sure you have this file created
+
+// // Components
+// import Navbar from './components/Navbar';
+
+// export default function App() {
+//   const [session, setSession] = useState(null);
+//   const [hasProfile, setHasProfile] = useState(false);
+//   const [checking, setChecking] = useState(true);
+
+//   useEffect(() => {
+//     // Initial Session Check
+//     supabase.auth.getSession().then(({ data: { session } }) => {
+//       setSession(session);
+//       if (session) checkUserProfile(session.user.id);
+//       else setChecking(false);
+//     });
+
+//     // Listen for Auth Changes
+//     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+//       setSession(session);
+//       if (session) checkUserProfile(session.user.id);
+//       else {
+//         setHasProfile(false);
+//         setChecking(false);
+//       }
+//     });
+
+//     return () => subscription.unsubscribe();
+//   }, []);
+
+//   const checkUserProfile = async (id) => {
+//     const { data } = await supabase
+//       .from('skill_profiles') // Corrected to lowercase
+//       .select('id')
+//       .eq('id', id)
+//       .single();
+    
+//     setHasProfile(!!data);
+//     setChecking(false);
+//   };
+
+//   if (checking) return (
+//     <div className="h-screen bg-[#020617] flex items-center justify-center">
+//       <div className="text-cyan-500 font-black animate-pulse tracking-widest">INITIALIZING...</div>
+//     </div>
+//   );
+
+//   // 1. If not logged in -> Show Auth
+//   if (!session) return <AuthPage />;
+
+//   // 2. If logged in but no profile -> Show Setup
+//   if (!hasProfile) return <ProfileSetup session={session} />;
+
+//   // 3. Fully Authenticated -> Enable Routing
+//   return (
+//     <Router>
+//       <div className="min-h-screen bg-[#020617] text-white selection:bg-cyan-500/30">
+//         <div className="pb-32"> {/* Bottom padding so Navbar doesn't cover content */}
+//           <Routes>
+//             <Route path="/" element={<Dashboard session={session} />} />
+//             <Route path="/inbox" element={<Inbox session={session} />} />
+//             <Route path="/profile" element={<Profile session={session} />} />
+//             <Route path="/profile-setup" element={<ProfileSetup session={session} />} />
+//             <Route path="*" element={<Navigate to="/" />} />
+//           </Routes>
+//         </div>
+//         <Navbar />
+//       </div>
+//     </Router>
+//   );
+// }
+
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './lib/supabase';
@@ -7,7 +89,7 @@ import AuthPage from './pages/AuthPage';
 import ProfileSetup from './pages/ProfileSetup';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
-import Inbox from './pages/Inbox'; // Make sure you have this file created
+import Inbox from './pages/Inbox';
 
 // Components
 import Navbar from './components/Navbar';
@@ -18,54 +100,82 @@ export default function App() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    // Initial Session Check
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) checkUserProfile(session.user.id);
-      else setChecking(false);
-    });
+    // 1. Initial session from Supabase (reads localStorage)
+    const initAuth = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-    // Listen for Auth Changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session) checkUserProfile(session.user.id);
-      else {
+
+      if (session?.user?.id) {
+        await checkUserProfile(session.user.id);
+      } else {
+        setHasProfile(false);
+        setChecking(false);
+      }
+    };
+
+    initAuth();
+
+    // 2. Listen for login/logout changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+
+      if (nextSession?.user?.id) {
+        checkUserProfile(nextSession.user.id);
+      } else {
         setHasProfile(false);
         setChecking(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const checkUserProfile = async (id) => {
-    const { data } = await supabase
-      .from('skill_profiles') // Corrected to lowercase
+    const { data, error } = await supabase
+      .from('skill_profiles')
       .select('id')
       .eq('id', id)
       .single();
-    
+
+    // If error is 406 (no row), data will be null – treat as "no profile yet"
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching profile', error.message);
+    }
+
     setHasProfile(!!data);
     setChecking(false);
   };
 
-  if (checking) return (
-    <div className="h-screen bg-[#020617] flex items-center justify-center">
-      <div className="text-cyan-500 font-black animate-pulse tracking-widest">INITIALIZING...</div>
-    </div>
-  );
+  if (checking) {
+    return (
+      <div className="h-screen bg-[#020617] flex items-center justify-center">
+        <div className="text-slate-300 text-sm">Loading Skillr…</div>
+      </div>
+    );
+  }
 
-  // 1. If not logged in -> Show Auth
-  if (!session) return <AuthPage />;
+  // 1. Not logged in → Auth
+  if (!session) {
+    return <AuthPage />;
+  }
 
-  // 2. If logged in but no profile -> Show Setup
-  if (!hasProfile) return <ProfileSetup session={session} />;
+  // 2. Logged in but no profile → Setup
+  if (!hasProfile) {
+    return <ProfileSetup session={session} />;
+  }
 
-  // 3. Fully Authenticated -> Enable Routing
+  // 3. Fully authenticated → App routes
   return (
     <Router>
       <div className="min-h-screen bg-[#020617] text-white selection:bg-cyan-500/30">
-        <div className="pb-32"> {/* Bottom padding so Navbar doesn't cover content */}
+        <div className="pb-32">
           <Routes>
             <Route path="/" element={<Dashboard session={session} />} />
             <Route path="/inbox" element={<Inbox session={session} />} />
