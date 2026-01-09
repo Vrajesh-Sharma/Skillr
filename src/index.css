@@ -1,4 +1,4 @@
-@import "tailwindcss";
+/* @import "tailwindcss";
 
 @theme {
   --color-brand-dark: #020617;
@@ -22,4 +22,45 @@
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
   @apply bg-white/10 rounded-full;
+} */
+
+
+
+/* Skillr – Tailwind v4 entry */
+@import "tailwindcss";
+
+@theme {
+  --color-page: #06070b;
+  --color-surface: #0b0d14;
+  --color-surface-soft: #11141f;
+  --color-border-subtle: #1e2333;
+  --color-accent: #2563eb;
+  --color-accent-soft: #1d4ed8;
+  --color-positive: #16a34a;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  body {
+    background: radial-gradient(circle at top, #111827 0, #020617 55%, #020617 100%);
+    color: #e5e7eb;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: rgba(37, 99, 235, 0.35);
+    color: #f9fafb;
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.65);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
 }
