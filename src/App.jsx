@@ -5,6 +5,7 @@ import { supabase } from './lib/supabase';
 // Pages
 import AuthPage from './pages/AuthPage';
 import ProfileSetup from './pages/ProfileSetup';
+import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
 import Inbox from './pages/Inbox'; // Make sure you have this file created
 
@@ -68,7 +69,8 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Dashboard session={session} />} />
             <Route path="/inbox" element={<Inbox session={session} />} />
-            <Route path="/profile" element={<ProfileSetup session={session} />} />
+            <Route path="/profile" element={<Profile session={session} />} />
+            <Route path="/profile-setup" element={<ProfileSetup session={session} />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
