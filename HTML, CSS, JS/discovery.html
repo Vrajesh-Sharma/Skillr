@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Skillr – Discovery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    /* ===== RESET ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #0b1020, #050814);
+      color: #e5e7eb;
+      min-height: 100vh;
+    }
+
+    /* ===== LAYOUT ===== */
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 48px 24px 120px;
+    }
+
+    /* ===== HEADER ===== */
+    .badge {
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: #93c5fd;
+      opacity: 0.8;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      max-width: 720px;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #9ca3af;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 48px;
+      flex-wrap: wrap;
+    }
+
+    .refresh-btn {
+      background: transparent;
+      border: 1px solid #1f2937;
+      color: #e5e7eb;
+      padding: 10px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .refresh-btn:hover {
+      background: #111827;
+    }
+
+    /* ===== CARDS GRID ===== */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 24px;
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      background: linear-gradient(180deg, #0b1224, #060a16);
+      border: 1px solid #111827;
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.02);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .user {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #9333ea);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .user h3 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .role {
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: #93c5fd;
+      opacity: 0.85;
+      margin-top: 2px;
+    }
+
+    .rating {
+      text-align: right;
+      font-size: 13px;
+      color: #facc15;
+    }
+
+    .rating span {
+      color: #9ca3af;
+      font-size: 12px;
+      margin-left: 4px;
+    }
+
+    /* ===== BODY ===== */
+    .bio {
+      font-size: 14px;
+      color: #d1d5db;
+    }
+
+    .skill-tag {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: #0b1a36;
+      border: 1px solid #1e3a8a;
+      color: #93c5fd;
+      width: fit-content;
+    }
+
+    /* ===== MATCH SCORE ===== */
+    .match {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .bar {
+      flex: 1;
+      height: 6px;
+      background: #020617;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      width: 20%;
+      background: linear-gradient(90deg, #2563eb, #3b82f6);
+    }
+
+    /* ===== BUTTON ===== */
+    .btn {
+      margin-top: 8px;
+      width: 100%;
+      padding: 14px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(90deg, #2563eb, #3b82f6);
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    /* ===== BOTTOM NAV (OPTIONAL UI FEEL) ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #020617;
+      border: 1px solid #111827;
+      border-radius: 999px;
+      padding: 12px 26px;
+      display: flex;
+      gap: 28px;
+      color: #9ca3af;
+      font-size: 13px;
+    }
+
+    .bottom-nav span {
+      cursor: pointer;
+    }
+
+    .bottom-nav span.active {
+      color: #60a5fa;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 32px;
+      }
+    }
+  </style>
+</head>
+
+<script src="navigation.js"></script>
+
+<body>
+
+  <div class="container">
+
+    <!-- HEADER -->
+    <div class="header-row">
+      <div>
+        <div class="badge">SKILLR • DISCOVERY</div>
+        <h1>Curated experts for your next skill jump</h1>
+        <p class="subtitle">
+          This dashboard shows people whose strengths align with what you want to learn.
+          Each connection is designed to be actionable, not just another profile.
+        </p>
+      </div>
+
+      <button class="refresh-btn" onclick="refreshMatches()">⟳ Refresh matches</button>
+    </div>
+
+    <!-- CARDS -->
+    <div class="grid" id="cards"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <span data-page="discovery" onclick="goTo('discovery.html')">Feed</span>
+    <span data-page="inbox" onclick="goTo('inbox.html')">Inbox</span>
+    <span data-page="profile" onclick="goTo('profile.html')">Profile</span>
+  </div>
+
+  <script>
+    const users = [
+      { name: "User 1", bio: "Frontend Developer", rating: 4.5, skill: "Deep Learning" },
+      { name: "User 2", bio: "AI Enthusiast", rating: 4.2, skill: "Deep Learning" },
+      { name: "User 3", bio: "ML Engineer", rating: 4.3, skill: "Deep Learning" },
+      { name: "User 4", bio: "Tech Mentor", rating: 4.0, skill: "Deep Learning" }
+    ];
+
+    const container = document.getElementById("cards");
+
+    function renderCards() {
+      container.innerHTML = "";
+      users.forEach((u, i) => {
+        container.innerHTML += `
+          <div class="card">
+            <div class="card-header">
+              <div class="user">
+                <div class="avatar">${u.name.split(" ")[1]}</div>
+                <div>
+                  <h3>${u.name}</h3>
+                  <div class="role">SKILLR MENTOR CANDIDATE</div>
+                </div>
+              </div>
+              <div class="rating">
+                ★ ${u.rating} <span>(reviews)</span>
+              </div>
+            </div>
+
+            <div class="bio">${u.bio}</div>
+
+            <span class="skill-tag">${u.skill}</span>
+
+            <div class="match">
+              <span>Match score</span>
+              <div class="bar"><div class="fill"></div></div>
+              <span>20%</span>
+            </div>
+
+            <button class="btn" onclick="requestIntro('${u.name}')">
+              ⚡ Request introduction
+            </button>
+          </div>
+        `;
+      });
+    }
+
+    function requestIntro(name) {
+      alert(`Introduction request sent to ${name}`);
+    }
+
+    function refreshMatches() {
+      renderCards();
+    }
+
+    renderCards();
+  </script>
+
+</body>
+</html>

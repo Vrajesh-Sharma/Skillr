@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Skillr – Inbox</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    /* ===== RESET ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #0b1020, #050814);
+      color: #e5e7eb;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 48px 24px 140px;
+    }
+
+    /* ===== HEADER ===== */
+    .badge {
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: #93c5fd;
+      opacity: 0.8;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 40px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #9ca3af;
+      font-size: 15px;
+      margin-bottom: 48px;
+    }
+
+    /* ===== SECTION ===== */
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    /* ===== EMPTY / PENDING BOX ===== */
+    .box {
+      border: 1px dashed #1f2937;
+      border-radius: 16px;
+      padding: 24px;
+      background: linear-gradient(180deg, #0b1224, #060a16);
+      margin-bottom: 48px;
+    }
+
+    /* ===== REQUEST CARD ===== */
+    .request {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .user {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .avatar {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #9333ea);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .user h3 {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .skill {
+      font-size: 12px;
+      color: #93c5fd;
+      margin-top: 4px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .accept {
+      background: linear-gradient(90deg, #2563eb, #3b82f6);
+      color: white;
+    }
+
+    .reject {
+      background: #020617;
+      border: 1px solid #1f2937;
+      color: #9ca3af;
+    }
+
+    /* ===== SYNC CARD ===== */
+    .sync-card {
+      background: linear-gradient(180deg, #0b1224, #060a16);
+      border: 1px solid #111827;
+      border-radius: 20px;
+      padding: 24px;
+    }
+
+    .sync-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .status {
+      font-size: 11px;
+      background: #0b1a36;
+      color: #93c5fd;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-top: 6px;
+      width: fit-content;
+    }
+
+    .waiting {
+      font-size: 13px;
+      color: #9ca3af;
+      font-style: italic;
+    }
+
+    .contact {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .contact-box {
+      background: #020617;
+      border: 1px solid #111827;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      color: #e5e7eb;
+    }
+
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #020617;
+      border: 1px solid #111827;
+      border-radius: 999px;
+      padding: 12px 26px;
+      display: flex;
+      gap: 28px;
+      color: #9ca3af;
+      font-size: 13px;
+    }
+
+    .bottom-nav span {
+      cursor: pointer;
+    }
+
+    .bottom-nav span.active {
+      color: #60a5fa;
+    }
+
+    @media (max-width: 640px) {
+      .contact {
+        grid-template-columns: 1fr;
+      }
+      h1 {
+        font-size: 32px;
+      }
+    }
+  </style>
+</head>
+
+<script src="navigation.js"></script>
+
+<body>
+
+  <div class="container">
+
+    <!-- HEADER -->
+    <div class="badge">SKILLR • INBOX</div>
+    <h1>Introductions & Skill Syncs</h1>
+    <p class="subtitle">
+      Verify requests and finalize completed learning swaps.
+    </p>
+
+    <!-- PENDING REQUESTS -->
+    <div class="section-title">Pending requests (1)</div>
+    <div class="box" id="pendingBox">
+      <div class="request">
+        <div class="user">
+          <div class="avatar">U</div>
+          <div>
+            <h3>Dummy User</h3>
+            <div class="skill">Wants to teach: Deep Learning</div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn accept" onclick="acceptRequest()">Accept</button>
+          <button class="btn reject" onclick="rejectRequest()">Reject</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESTABLISHED SYNC -->
+    <div class="section-title">Established Syncs</div>
+    <div class="sync-card">
+      <div class="sync-header">
+        <div class="user">
+          <div class="avatar">M</div>
+          <div>
+            <h3>Mentor User</h3>
+            <div class="status">ACTIVE SESSION</div>
+          </div>
+        </div>
+        <div class="waiting">Waiting for mentor handshake…</div>
+      </div>
+
+      <div class="contact">
+        <div class="contact-box">📞 +91 98765 43210</div>
+        <div class="contact-box">✉️ mentor.user@email.com</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <span data-page="discovery" onclick="goTo('discovery.html')">Feed</span>
+    <span data-page="inbox" onclick="goTo('inbox.html')">Inbox</span>
+    <span data-page="profile" onclick="goTo('profile.html')">Profile</span>
+  </div>
+
+
+  <script>
+    function acceptRequest() {
+      document.getElementById("pendingBox").innerHTML =
+        "<p style='color:#9ca3af'>No incoming connection requests.</p>";
+      alert("Request accepted. Sync established!");
+    }
+
+    function rejectRequest() {
+      document.getElementById("pendingBox").innerHTML =
+        "<p style='color:#9ca3af'>No incoming connection requests.</p>";
+      alert("Request rejected.");
+    }
+  </script>
+
+</body>
+</html>
