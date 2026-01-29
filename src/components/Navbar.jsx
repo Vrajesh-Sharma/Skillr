@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Mail, User, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function Navbar() {
+export default function Navbar({ unreadCount = 0 }) {
   const location = useLocation();
 
   const navLinks = [
@@ -39,6 +39,11 @@ export default function Navbar() {
                     }`}
                     strokeWidth={2}
                   />
+
+                  {/* Notification Badge: Only shows for Inbox if unreadCount > 0 */}
+                  {link.label === 'Inbox' && unreadCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse" />
+                  )}
                 </div>
                 <span
                   className={`text-[10px] font-medium ${
@@ -55,4 +60,3 @@ export default function Navbar() {
     </nav>
   );
 }
-

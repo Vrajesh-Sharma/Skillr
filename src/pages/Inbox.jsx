@@ -1,6 +1,668 @@
+// import { useEffect, useState } from 'react';
+// import { supabase } from '../lib/supabase';
+// import { Check, X, MessageSquare, Phone, Mail, Zap, Star, Trophy, Loader2 } from 'lucide-react';
+// import { motion, AnimatePresence } from 'framer-motion';
+
+// // --- SUB-COMPONENT: FINISH MATCH MODAL ---
+// function FinishModal({ match, userId, onClose, onComplete }) {
+//   const [rating, setRating] = useState(0);
+//   const [learnedIds, setLearnedIds] = useState([]);
+//   const [availableSkills, setAvailableSkills] = useState([]);
+//   const [submitting, setSubmitting] = useState(false);
+
+//   // FIXED: Partner identification using userId from props
+//   const partner = match.requester_id === userId ? match.receiver : match.requester;
+
+//   useEffect(() => {
+//     async function fetchSharedSkills() {
+//       // 1. Get IDs of skills the partner HAS
+//       const { data: partnerSkills } = await supabase
+//         .from('skill_profile_skills')
+//         .select('skill_id')
+//         .eq('profile_id', partner.id)
+//         .eq('association_type', 'have');
+
+//       if (!partnerSkills || partnerSkills.length === 0) {
+//         setAvailableSkills([]);
+//         return;
+//       }
+
+//       const partnerSkillIds = partnerSkills.map(s => s.skill_id);
+
+//       // 2. Fetch skills current user WANTS that the partner actually has
+//       const { data } = await supabase
+//         .from('skill_profile_skills')
+//         .select('skill_id, skill_skills(name)')
+//         .eq('profile_id', userId)
+//         .eq('association_type', 'want')
+//         .in('skill_id', partnerSkillIds);
+      
+//       setAvailableSkills(data?.map(d => ({ id: d.skill_id, name: d.skill_skills.name })) || []);
+//     }
+//     fetchSharedSkills();
+//   }, [userId, partner.id]);
+
+//   const handleSubmit = async () => {
+//     if (rating === 0) return alert("Please rate your partner's expertise.");
+//     setSubmitting(true);
+
+//     const isRequester = match.requester_id === userId;
+    
+//     // Explicit update for the specific handshake side
+//     const updates = isRequester ? {
+//       requester_finished: true,
+//       requester_rating: rating,
+//       requester_learned_ids: learnedIds
+//     } : {
+//       receiver_finished: true,
+//       receiver_rating: rating,
+//       receiver_learned_ids: learnedIds
+//     };
+
+//     const { error } = await supabase
+//       .from('skill_matches')
+//       .update(updates)
+//       .eq('id', match.id);
+
+//     if (error) alert(error.message);
+//     else onComplete();
+    
+//     setSubmitting(false);
+//   };
+
+//   return (
+//     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#020617]/90 backdrop-blur-md">
+//       <motion.div 
+//         initial={{ scale: 0.95, opacity: 0 }} 
+//         animate={{ scale: 1, opacity: 1 }} 
+//         className="w-full max-w-lg bg-[#0b0d14] border border-slate-800 rounded-[2.5rem] p-8 shadow-2xl space-y-8"
+//       >
+//         <div className="text-center space-y-2">
+//           <Trophy className="w-12 h-12 text-amber-400 mx-auto mb-4" />
+//           <h2 className="text-2xl font-semibold text-slate-50">Mastery Confirmation</h2>
+//           <p className="text-sm text-slate-400">Rate {partner.full_name} and confirm the skills you have mastered.</p>
+//         </div>
+
+//         <div className="flex justify-center gap-3">
+//           {[1, 2, 3, 4, 5].map((s) => (
+//             <button key={s} onClick={() => setRating(s)} className="transition-transform active:scale-90 focus:outline-none">
+//               <Star className={`w-10 h-10 ${rating >= s ? 'text-amber-400 fill-amber-400' : 'text-slate-800'}`} />
+//             </button>
+//           ))}
+//         </div>
+
+//         <div className="space-y-4">
+//           <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 ml-1 text-center md:text-left">
+//             Manual Skill Evolution
+//           </p>
+//           <div className="max-h-48 overflow-y-auto custom-scrollbar space-y-2 pr-2">
+//             {availableSkills.length > 0 ? availableSkills.map(skill => (
+//               <label key={skill.id} className="flex items-center justify-between p-4 rounded-2xl border border-slate-800 bg-slate-900/40 cursor-pointer hover:border-slate-600 transition-colors">
+//                 <span className="text-sm font-medium text-slate-200">{skill.name}</span>
+//                 <input 
+//                   type="checkbox" 
+//                   className="w-5 h-5 rounded border-slate-700 bg-slate-950 text-blue-600 focus:ring-blue-500" 
+//                   onChange={(e) => {
+//                     if(e.target.checked) setLearnedIds([...learnedIds, skill.id]);
+//                     else setLearnedIds(learnedIds.filter(id => id !== skill.id));
+//                   }}
+//                 />
+//               </label>
+//             )) : (
+//               <p className="text-xs text-slate-500 italic p-4 bg-slate-900/40 rounded-2xl border border-dashed border-slate-800">
+//                 No matching "Wanted" skills found for this session.
+//               </p>
+//             )}
+//           </div>
+//         </div>
+
+//         <div className="flex gap-3 pt-4">
+//           <button onClick={onClose} className="flex-1 py-4 rounded-2xl border border-slate-800 text-sm font-semibold text-slate-400 hover:bg-slate-900 transition-colors">Not yet</button>
+//           <button 
+//             onClick={handleSubmit} 
+//             disabled={submitting}
+//             className="flex-1 py-4 rounded-2xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-500 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+//           >
+//             {submitting ? <Loader2 className="animate-spin w-4 h-4" /> : "Finalize Swap"}
+//           </button>
+//         </div>
+//       </motion.div>
+//     </div>
+//   );
+// }
+
+// export default function Inbox({ session }) {
+//   const [pendingRequests, setPendingRequests] = useState([]);
+//   const [mutualMatches, setMutualMatches] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [selectedMatch, setSelectedMatch] = useState(null);
+
+//   useEffect(() => {
+//     if (session?.user?.id) {
+//       fetchAllData();
+
+//       // Listen for handshake updates in skill_matches
+//       const channel = supabase
+//         .channel('match-updates')
+//         .on('postgres_changes', 
+//           { event: 'UPDATE', schema: 'public', table: 'skill_matches' }, 
+//           () => fetchAllData()
+//         )
+//         .subscribe();
+
+//       return () => supabase.removeChannel(channel);
+//     }
+//   }, [session?.user?.id]);
+
+//   const fetchAllData = async () => {
+//     setLoading(true);
+    
+//     const { data: incoming } = await supabase
+//       .from('skill_matches')
+//       .select('*, requester:skill_profiles!requester_id(*)')
+//       .eq('receiver_id', session.user.id)
+//       .eq('status', 'pending');
+
+//     const { data: accepted } = await supabase
+//       .from('skill_matches')
+//       .select(`
+//         *,
+//         requester:skill_profiles!requester_id(*),
+//         receiver:skill_profiles!receiver_id(*)
+//       `)
+//       .in('status', ['accepted', 'completed'])
+//       .or(`requester_id.eq.${session.user.id},receiver_id.eq.${session.user.id}`);
+
+//     setPendingRequests(incoming || []);
+//     setMutualMatches(accepted || []);
+//     setLoading(false);
+//   };
+
+//   const handleAction = async (matchId, newStatus) => {
+//     const { error } = await supabase
+//       .from('skill_matches')
+//       .update({ status: newStatus })
+//       .eq('id', matchId);
+//     if (!error) fetchAllData();
+//   };
+
+//   if (loading) {
+//     return (
+//       <div className="min-h-screen flex items-center justify-center bg-[#020617]">
+//         <MessageSquare className="w-8 h-8 text-slate-700 animate-pulse" />
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="max-w-5xl mx-auto py-14 px-4 md:px-6 space-y-14 pb-32">
+//       <header className="space-y-3">
+//         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Skillr · Inbox</p>
+//         <h1 className="text-3xl md:text-4xl font-semibold text-slate-50">Introductions & Skill Syncs</h1>
+//         <p className="text-sm text-slate-400 max-w-xl">Verify requests and finalize completed learning swaps.</p>
+//       </header>
+
+//       {/* Pending requests section */}
+//       <section className="space-y-5">
+//         <h2 className="text-sm font-semibold text-slate-200">Pending requests ({pendingRequests.length})</h2>
+//         {pendingRequests.length === 0 ? (
+//           <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 px-6 py-8 text-sm text-slate-400">
+//             No incoming connection requests.
+//           </div>
+//         ) : (
+//           <div className="space-y-3">
+//             <AnimatePresence>
+//               {pendingRequests.map((req) => (
+//                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} key={req.id} 
+//                   className="rounded-2xl border border-slate-800 bg-slate-900/70 px-5 py-4 flex items-center justify-between">
+//                   <div className="flex items-center gap-4">
+//                     <img src={req.requester.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${req.requester.full_name}`} className="h-11 w-11 rounded-2xl object-cover border border-slate-700 bg-slate-950" alt="" />
+//                     <div>
+//                       <p className="text-sm font-semibold text-slate-50">{req.requester.full_name}</p>
+//                       <p className="text-[11px] text-slate-400">Incoming match signal</p>
+//                     </div>
+//                   </div>
+//                   <div className="flex gap-2">
+//                     <button onClick={() => handleAction(req.id, 'accepted')} className="h-9 w-9 flex items-center justify-center rounded-full bg-emerald-600/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/20 transition-colors"><Check className="w-4 h-4" /></button>
+//                     <button onClick={() => handleAction(req.id, 'rejected')} className="h-9 w-9 flex items-center justify-center rounded-full bg-red-600/5 text-red-400 border border-red-500/30 hover:bg-red-600/15 transition-colors"><X className="w-4 h-4" /></button>
+//                   </div>
+//                 </motion.div>
+//               ))}
+//             </AnimatePresence>
+//           </div>
+//         )}
+//       </section>
+
+//       {/* Established syncs section */}
+//       <section className="space-y-5">
+//         <h2 className="text-sm font-semibold text-slate-200">Established Syncs</h2>
+//         <div className="grid grid-cols-1 gap-5">
+//           {mutualMatches.length === 0 ? (
+//             <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 px-6 py-8 text-sm text-slate-400">No active or completed connections.</div>
+//           ) : mutualMatches.map((match) => {
+//             const isRequester = match.requester_id === session.user.id;
+//             const partner = isRequester ? match.receiver : match.requester;
+            
+//             const userFinished = isRequester ? match.requester_finished : match.receiver_finished;
+//             const partnerFinished = isRequester ? match.receiver_finished : match.requester_finished;
+//             const isCompleted = match.status === 'completed';
+
+//             return (
+//               <article key={match.id} className={`rounded-3xl border ${isCompleted ? 'border-emerald-900/30 bg-emerald-900/5' : 'border-slate-800 bg-slate-900/80'} px-6 py-6 flex flex-col gap-6`}>
+//                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+//                   <div className="flex items-center gap-4">
+//                     <img src={partner.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${partner.full_name}`} className="h-14 w-14 rounded-2xl object-cover border border-slate-700 bg-slate-950" alt="" />
+//                     <div>
+//                       <p className="text-sm font-semibold text-slate-50">{partner.full_name}</p>
+//                       <div className="flex gap-2 mt-1">
+//                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isCompleted ? 'bg-emerald-500/20 text-emerald-400' : 'bg-blue-500/20 text-blue-400'}`}>
+//                           {isCompleted ? "SYNC COMPLETE" : "ACTIVE SESSION"}
+//                         </span>
+//                       </div>
+//                     </div>
+//                   </div>
+
+//                   <div className="flex items-center gap-3">
+//                     {!isCompleted && partnerFinished && !userFinished && (
+//                       <div className="flex flex-col items-end gap-2">
+//                         <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest animate-pulse">
+//                           {partner.full_name} requested to finish
+//                         </span>
+//                         <button
+//                           onClick={() => setSelectedMatch(match)}
+//                           className="bg-amber-500 text-black px-5 py-2 rounded-full text-xs font-bold hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20"
+//                         >
+//                           Accept Handshake
+//                         </button>
+//                       </div>
+//                     )}
+
+//                     {!isCompleted && !partnerFinished && !userFinished && (
+//                       <button
+//                         onClick={() => setSelectedMatch(match)}
+//                         className="bg-slate-50 text-slate-950 px-5 py-2.5 rounded-full text-xs font-bold hover:bg-white transition-all shadow-xl active:scale-95"
+//                       >
+//                         Finish Swap
+//                       </button>
+//                     )}
+
+//                     {userFinished && !isCompleted && (
+//                       <span className="text-[11px] font-bold text-slate-500 italic tracking-wide">
+//                         Waiting for {partner.full_name}'s handshake...
+//                       </span>
+//                     )}
+
+//                     {isCompleted && (
+//                       <div className="flex items-center gap-1.5 text-emerald-400">
+//                         <Trophy size={16} />
+//                         <span className="text-xs font-black uppercase tracking-widest">Mastered</span>
+//                       </div>
+//                     )}
+//                   </div>
+//                 </div>
+
+//                 {/* Identity Reveal Section */}
+//                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+//                   <div className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950/60 px-4 py-3">
+//                     <Phone className="h-4 w-4 text-slate-500" />
+//                     <span className="text-sm font-medium text-slate-300">{partner.contact_number || 'Identity Private'}</span>
+//                   </div>
+//                   <div className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950/60 px-4 py-3">
+//                     <Mail className="h-4 w-4 text-slate-500" />
+//                     <span className="text-sm font-medium text-slate-300">{partner.email}</span>
+//                   </div>
+//                 </div>
+//               </article>
+//             );
+//           })}
+//         </div>
+//       </section>
+
+//       <AnimatePresence>
+//         {selectedMatch && (
+//           <FinishModal 
+//             match={selectedMatch} 
+//             userId={session.user.id} 
+//             onClose={() => setSelectedMatch(null)} 
+//             onComplete={() => {
+//               setSelectedMatch(null);
+//               fetchAllData();
+//             }}
+//           />
+//         )}
+//       </AnimatePresence>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Match issue 2nd time
+
+// import { useEffect, useState } from 'react';
+// import { supabase } from '../lib/supabase';
+// import { Check, X, MessageSquare, Phone, Mail, Zap, Star, Trophy, Loader2, Award } from 'lucide-react';
+// import { motion, AnimatePresence } from 'framer-motion';
+
+// // --- SUB-COMPONENT: FINISH MATCH MODAL ---
+// function FinishModal({ match, userId, onClose, onComplete }) {
+//   const [rating, setRating] = useState(0);
+//   const [learnedIds, setLearnedIds] = useState([]);
+//   const [availableSkills, setAvailableSkills] = useState([]);
+//   const [submitting, setSubmitting] = useState(false);
+
+//   const partner = match.requester_id === userId ? match.receiver : match.requester;
+
+//   useEffect(() => {
+//     async function fetchSharedSkills() {
+//       const { data: partnerSkills } = await supabase
+//         .from('skill_profile_skills')
+//         .select('skill_id')
+//         .eq('profile_id', partner.id)
+//         .eq('association_type', 'have');
+
+//       if (!partnerSkills || partnerSkills.length === 0) {
+//         setAvailableSkills([]);
+//         return;
+//       }
+
+//       const partnerSkillIds = partnerSkills.map(s => s.skill_id);
+
+//       const { data } = await supabase
+//         .from('skill_profile_skills')
+//         .select('skill_id, skill_skills(name)')
+//         .eq('profile_id', userId)
+//         .eq('association_type', 'want')
+//         .in('skill_id', partnerSkillIds);
+      
+//       setAvailableSkills(data?.map(d => ({ id: d.skill_id, name: d.skill_skills.name })) || []);
+//     }
+//     fetchSharedSkills();
+//   }, [userId, partner.id]);
+
+//   const handleSubmit = async () => {
+//     if (rating === 0) return alert("Please rate your partner's expertise.");
+//     setSubmitting(true);
+
+//     const isRequester = match.requester_id === userId;
+    
+//     const updates = isRequester ? {
+//       requester_finished: true,
+//       requester_rating: rating,
+//       requester_learned_ids: learnedIds
+//     } : {
+//       receiver_finished: true,
+//       receiver_rating: rating,
+//       receiver_learned_ids: learnedIds
+//     };
+
+//     const { error } = await supabase
+//       .from('skill_matches')
+//       .update(updates)
+//       .eq('id', match.id);
+
+//     if (error) alert(error.message);
+//     else onComplete();
+    
+//     setSubmitting(false);
+//   };
+
+//   return (
+//     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#020617]/90 backdrop-blur-md">
+//       <motion.div 
+//         initial={{ scale: 0.95, opacity: 0 }} 
+//         animate={{ scale: 1, opacity: 1 }} 
+//         className="w-full max-w-lg bg-[#0b0d14] border border-slate-800 rounded-[2.5rem] p-8 shadow-2xl space-y-8"
+//       >
+//         <div className="text-center space-y-2">
+//           <Trophy className="w-12 h-12 text-amber-400 mx-auto mb-4" />
+//           <h2 className="text-2xl font-semibold text-slate-50">Mastery Confirmation</h2>
+//           <p className="text-sm text-slate-400">Rate {partner.full_name} and confirm the skills you mastered.</p>
+//         </div>
+
+//         <div className="flex justify-center gap-3">
+//           {[1, 2, 3, 4, 5].map((s) => (
+//             <button key={s} onClick={() => setRating(s)} className="transition-transform active:scale-90 focus:outline-none">
+//               <Star className={`w-10 h-10 ${rating >= s ? 'text-amber-400 fill-amber-400' : 'text-slate-800'}`} />
+//             </button>
+//           ))}
+//         </div>
+
+//         <div className="space-y-4">
+//           <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 ml-1">Manual Skill Evolution</p>
+//           <div className="max-h-48 overflow-y-auto custom-scrollbar space-y-2 pr-2">
+//             {availableSkills.length > 0 ? availableSkills.map(skill => (
+//               <label key={skill.id} className="flex items-center justify-between p-4 rounded-2xl border border-slate-800 bg-slate-900/40 cursor-pointer hover:border-slate-600 transition-colors">
+//                 <span className="text-sm font-medium text-slate-200">{skill.name}</span>
+//                 <input 
+//                   type="checkbox" 
+//                   className="w-5 h-5 rounded border-slate-700 bg-slate-950 text-blue-600" 
+//                   onChange={(e) => {
+//                     if(e.target.checked) setLearnedIds([...learnedIds, skill.id]);
+//                     else setLearnedIds(learnedIds.filter(id => id !== skill.id));
+//                   }}
+//                 />
+//               </label>
+//             )) : (
+//               <p className="text-xs text-slate-500 italic p-4 bg-slate-900/40 rounded-2xl border border-dashed border-slate-800">
+//                 No matching skills found to evolve.
+//               </p>
+//             )}
+//           </div>
+//         </div>
+
+//         <div className="flex gap-3 pt-4">
+//           <button onClick={onClose} className="flex-1 py-4 rounded-2xl border border-slate-800 text-sm font-semibold text-slate-400 hover:bg-slate-900 transition-colors">Not yet</button>
+//           <button 
+//             onClick={handleSubmit} 
+//             disabled={submitting}
+//             className="flex-1 py-4 rounded-2xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-500 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+//           >
+//             {submitting ? <Loader2 className="animate-spin w-4 h-4" /> : "Finalize Swap"}
+//           </button>
+//         </div>
+//       </motion.div>
+//     </div>
+//   );
+// }
+
+// // --- MAIN PAGE COMPONENT ---
+// export default function Inbox({ session }) {
+//   const [pendingRequests, setPendingRequests] = useState([]);
+//   const [mutualMatches, setMutualMatches] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [selectedMatch, setSelectedMatch] = useState(null);
+//   const [allSkillsMap, setAllSkillsMap] = useState({});
+
+//   useEffect(() => {
+//     if (session?.user?.id) {
+//         fetchAllData();
+//         fetchMasterSkillList();
+//     }
+//   }, [session?.user?.id]);
+
+//   // Fetch skill names to resolve the UUID arrays in completed matches
+//   const fetchMasterSkillList = async () => {
+//     const { data } = await supabase.from('skill_skills').select('id, name');
+//     if (data) {
+//         const map = {};
+//         data.forEach(s => map[s.id] = s.name);
+//         setAllSkillsMap(map);
+//     }
+//   };
+
+//   const fetchAllData = async () => {
+//     setLoading(true);
+    
+//     // Fetch Pending: Only show requests where you are the receiver
+//     const { data: incoming } = await supabase
+//       .from('skill_matches')
+//       .select('*, requester:skill_profiles!requester_id(*)')
+//       .eq('receiver_id', session.user.id)
+//       .eq('status', 'pending')
+//       .order('created_at', { ascending: false });
+
+//     // Fetch Accepted/Completed: Ordered by NEWEST first to solve the "multi-match" overlap
+//     const { data: accepted } = await supabase
+//       .from('skill_matches')
+//       .select(`
+//         *,
+//         requester:skill_profiles!requester_id(*),
+//         receiver:skill_profiles!receiver_id(*)
+//       `)
+//       .in('status', ['accepted', 'completed'])
+//       .or(`requester_id.eq.${session.user.id},receiver_id.eq.${session.user.id}`)
+//       .order('created_at', { ascending: false });
+
+//     setPendingRequests(incoming || []);
+//     setMutualMatches(accepted || []);
+//     setLoading(false);
+//   };
+
+//   const handleAction = async (matchId, newStatus) => {
+//     const { error } = await supabase
+//       .from('skill_matches')
+//       .update({ status: newStatus })
+//       .eq('id', matchId);
+//     if (!error) fetchAllData();
+//   };
+
+//   if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#020617]"><MessageSquare className="w-8 h-8 text-slate-700 animate-pulse" /></div>;
+
+//   return (
+//     <div className="max-w-5xl mx-auto py-14 px-4 md:px-6 space-y-14 pb-32">
+//       <header className="space-y-3">
+//         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Skillr · Inbox</p>
+//         <h1 className="text-3xl md:text-4xl font-semibold text-slate-50">Introductions & Skill Syncs</h1>
+//         <p className="text-sm text-slate-400 max-w-xl">Verify requests and track your mastery evolution.</p>
+//       </header>
+
+//       {/* Section: Pending Requests */}
+//       <section className="space-y-5">
+//         <h2 className="text-sm font-semibold text-slate-200">Incoming match signals ({pendingRequests.length})</h2>
+//         {pendingRequests.length === 0 ? (
+//           <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 px-6 py-8 text-sm text-slate-400">No incoming signals.</div>
+//         ) : (
+//           <div className="space-y-3">
+//             <AnimatePresence>
+//               {pendingRequests.map((req) => (
+//                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} key={req.id} 
+//                   className="rounded-2xl border border-slate-800 bg-slate-900/70 px-5 py-4 flex items-center justify-between">
+//                   <div className="flex items-center gap-4">
+//                     <img src={req.requester.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${req.requester.full_name}`} className="h-11 w-11 rounded-2xl object-cover border border-slate-700 bg-slate-950" alt="" />
+//                     <p className="text-sm font-semibold text-slate-50">{req.requester.full_name}</p>
+//                   </div>
+//                   <div className="flex gap-2">
+//                     <button onClick={() => handleAction(req.id, 'accepted')} className="h-9 w-9 flex items-center justify-center rounded-full bg-emerald-600/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/20"><Check size={16}/></button>
+//                     <button onClick={() => handleAction(req.id, 'rejected')} className="h-9 w-9 flex items-center justify-center rounded-full bg-red-600/5 text-red-400 border border-red-500/30 hover:bg-red-600/15"><X size={16}/></button>
+//                   </div>
+//                 </motion.div>
+//               ))}
+//             </AnimatePresence>
+//           </div>
+//         )}
+//       </section>
+
+//       {/* Section: Established/Completed Syncs */}
+//       <section className="space-y-5">
+//         <h2 className="text-sm font-semibold text-slate-200">Mastery History & Active Syncs</h2>
+//         <div className="grid grid-cols-1 gap-5">
+//           {mutualMatches.map((match) => {
+//             const isRequester = match.requester_id === session.user.id;
+//             const partner = isRequester ? match.receiver : match.requester;
+//             const userFinished = isRequester ? match.requester_finished : match.receiver_finished;
+//             const partnerFinished = isRequester ? match.receiver_finished : match.requester_finished;
+//             const isCompleted = match.status === 'completed';
+            
+//             // Get the IDs of skills this specific user learned in THIS match
+//             const myLearnedIds = isRequester ? match.requester_learned_ids : match.receiver_learned_ids;
+
+//             return (
+//               <article key={match.id} className={`rounded-3xl border ${isCompleted ? 'border-emerald-900/30 bg-emerald-900/5' : 'border-slate-800 bg-slate-900/80'} px-6 py-6 flex flex-col gap-6`}>
+//                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+//                   <div className="flex items-center gap-4">
+//                     <img src={partner.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${partner.full_name}`} className="h-14 w-14 rounded-2xl object-cover border border-slate-700 bg-slate-950" alt="" />
+//                     <div>
+//                       <p className="text-sm font-semibold text-slate-50">{partner.full_name}</p>
+//                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isCompleted ? 'bg-emerald-500/20 text-emerald-400' : 'bg-blue-500/20 text-blue-400'}`}>
+//                         {isCompleted ? 'SYNC COMPLETE' : 'ACTIVE SESSION'}
+//                       </span>
+//                     </div>
+//                   </div>
+
+//                   <div className="flex items-center gap-3">
+//                     {!isCompleted && partnerFinished && !userFinished && (
+//                         <div className="flex flex-col items-end gap-2">
+//                             <span className="text-[10px] font-black text-amber-500 uppercase animate-pulse">{partner.full_name} finished</span>
+//                             <button onClick={() => setSelectedMatch(match)} className="bg-amber-500 text-black px-5 py-2 rounded-full text-xs font-bold">Accept Handshake</button>
+//                         </div>
+//                     )}
+//                     {!isCompleted && !partnerFinished && !userFinished && (
+//                         <button onClick={() => setSelectedMatch(match)} className="bg-slate-50 text-slate-950 px-5 py-2.5 rounded-full text-xs font-bold">Finish Swap</button>
+//                     )}
+//                     {userFinished && !isCompleted && <span className="text-[11px] font-bold text-slate-500 italic">Awaiting partner...</span>}
+//                     {isCompleted && <div className="flex items-center gap-1.5 text-emerald-400"><Trophy size={16}/><span className="text-xs font-black uppercase tracking-widest">Mastered</span></div>}
+//                   </div>
+//                 </div>
+
+//                 {/* SHOW LEARNED SKILLS FOR THIS SWAP */}
+//                 {isCompleted && myLearnedIds?.length > 0 && (
+//                     <div className="flex flex-wrap gap-2 pt-2">
+//                         <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest flex items-center gap-1 w-full mb-1">
+//                             <Award size={12}/> Skills Mastered:
+//                         </span>
+//                         {myLearnedIds.map(id => (
+//                             <span key={id} className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold rounded-lg uppercase">
+//                                 {allSkillsMap[id] || "Skill Ref"}
+//                             </span>
+//                         ))}
+//                     </div>
+//                 )}
+
+//                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+//                   <div className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950/60 px-4 py-3"><Phone className="h-4 w-4 text-slate-500" /><span className="text-sm font-medium text-slate-300">{partner.contact_number || 'Private'}</span></div>
+//                   <div className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950/60 px-4 py-3"><Mail className="h-4 w-4 text-slate-500" /><span className="text-sm font-medium text-slate-300">{partner.email}</span></div>
+//                 </div>
+//               </article>
+//             );
+//           })}
+//         </div>
+//       </section>
+
+//       <AnimatePresence>
+//         {selectedMatch && (
+//           <FinishModal match={selectedMatch} userId={session.user.id} onClose={() => setSelectedMatch(null)} 
+//             onComplete={() => { setSelectedMatch(null); fetchAllData(); }} />
+//         )}
+//       </AnimatePresence>
+//     </div>
+//   );
+// }
+
+
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Check, X, MessageSquare, Phone, Mail, Zap, Star, Trophy, Loader2 } from 'lucide-react';
+import {
+  Check,
+  X,
+  MessageSquare,
+  Phone,
+  Mail,
+  Trophy,
+  Loader2,
+  Award,
+  Star,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- SUB-COMPONENT: FINISH MATCH MODAL ---
@@ -10,12 +672,12 @@ function FinishModal({ match, userId, onClose, onComplete }) {
   const [availableSkills, setAvailableSkills] = useState([]);
   const [submitting, setSubmitting] = useState(false);
 
-  // FIXED: Partner identification using userId from props
-  const partner = match.requester_id === userId ? match.receiver : match.requester;
+  const isRequester = match.requester_id === userId;
+  const partner = isRequester ? match.receiver : match.requester;
 
   useEffect(() => {
     async function fetchSharedSkills() {
-      // 1. Get IDs of skills the partner HAS
+      // Partner skills (have)
       const { data: partnerSkills } = await supabase
         .from('skill_profile_skills')
         .select('skill_id')
@@ -27,103 +689,156 @@ function FinishModal({ match, userId, onClose, onComplete }) {
         return;
       }
 
-      const partnerSkillIds = partnerSkills.map(s => s.skill_id);
+      const partnerSkillIds = partnerSkills.map((s) => s.skill_id);
 
-      // 2. Fetch skills current user WANTS that the partner actually has
+      // Intersection: my wants ∩ partner's haves
       const { data } = await supabase
         .from('skill_profile_skills')
         .select('skill_id, skill_skills(name)')
         .eq('profile_id', userId)
         .eq('association_type', 'want')
         .in('skill_id', partnerSkillIds);
-      
-      setAvailableSkills(data?.map(d => ({ id: d.skill_id, name: d.skill_skills.name })) || []);
+
+      setAvailableSkills(
+        data?.map((d) => ({ id: d.skill_id, name: d.skill_skills.name })) || [],
+      );
     }
+
     fetchSharedSkills();
   }, [userId, partner.id]);
 
   const handleSubmit = async () => {
-    if (rating === 0) return alert("Please rate your partner's expertise.");
+    if (submitting) return;
+    if (rating === 0) {
+      alert("Please rate your partner's expertise.");
+      return;
+    }
+
     setSubmitting(true);
 
-    const isRequester = match.requester_id === userId;
-    
-    // Explicit update for the specific handshake side
-    const updates = isRequester ? {
-      requester_finished: true,
-      requester_rating: rating,
-      requester_learned_ids: learnedIds
-    } : {
-      receiver_finished: true,
-      receiver_rating: rating,
-      receiver_learned_ids: learnedIds
-    };
+    const updates = isRequester
+      ? {
+          requester_finished: true,
+          requester_rating: rating,
+          requester_learned_ids: learnedIds,
+        }
+      : {
+          receiver_finished: true,
+          receiver_rating: rating,
+          receiver_learned_ids: learnedIds,
+        };
 
     const { error } = await supabase
       .from('skill_matches')
       .update(updates)
       .eq('id', match.id);
 
-    if (error) alert(error.message);
-    else onComplete();
-    
+    if (error) {
+      alert(error.message);
+      setSubmitting(false);
+      return;
+    }
+
+    onComplete();
     setSubmitting(false);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#020617]/90 backdrop-blur-md">
-      <motion.div 
-        initial={{ scale: 0.95, opacity: 0 }} 
-        animate={{ scale: 1, opacity: 1 }} 
-        className="w-full max-w-lg bg-[#0b0d14] border border-slate-800 rounded-[2.5rem] p-8 shadow-2xl space-y-8"
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#020617]/90 p-4 backdrop-blur-md">
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="w-full max-w-lg space-y-8 rounded-[2.5rem] border border-slate-800 bg-[#0b0d14] p-8 shadow-2xl"
       >
-        <div className="text-center space-y-2">
-          <Trophy className="w-12 h-12 text-amber-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-semibold text-slate-50">Mastery Confirmation</h2>
-          <p className="text-sm text-slate-400">Rate {partner.full_name} and confirm the skills you have mastered.</p>
+        <div className="space-y-2 text-center">
+          <Trophy className="mx-auto mb-4 h-12 w-12 text-amber-400" />
+          <h2 className="text-2xl font-semibold text-slate-50">
+            Confirm this Skillr swap
+          </h2>
+          <p className="text-sm text-slate-400">
+            Rate {partner.full_name} and select what you actually learned in this
+            session.
+          </p>
         </div>
 
         <div className="flex justify-center gap-3">
           {[1, 2, 3, 4, 5].map((s) => (
-            <button key={s} onClick={() => setRating(s)} className="transition-transform active:scale-90 focus:outline-none">
-              <Star className={`w-10 h-10 ${rating >= s ? 'text-amber-400 fill-amber-400' : 'text-slate-800'}`} />
+            <button
+              key={s}
+              type="button"
+              onClick={() => setRating(s)}
+              className="focus:outline-none active:scale-90 transition-transform"
+            >
+              <Star
+                className={`h-10 w-10 ${
+                  rating >= s
+                    ? 'text-amber-400 fill-amber-400'
+                    : 'text-slate-700'
+                }`}
+              />
             </button>
           ))}
         </div>
 
         <div className="space-y-4">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 ml-1 text-center md:text-left">
-            Manual Skill Evolution
+          <p className="ml-1 text-[11px] font-bold uppercase tracking-widest text-slate-500">
+            Skills you mastered this time
           </p>
-          <div className="max-h-48 overflow-y-auto custom-scrollbar space-y-2 pr-2">
-            {availableSkills.length > 0 ? availableSkills.map(skill => (
-              <label key={skill.id} className="flex items-center justify-between p-4 rounded-2xl border border-slate-800 bg-slate-900/40 cursor-pointer hover:border-slate-600 transition-colors">
-                <span className="text-sm font-medium text-slate-200">{skill.name}</span>
-                <input 
-                  type="checkbox" 
-                  className="w-5 h-5 rounded border-slate-700 bg-slate-950 text-blue-600 focus:ring-blue-500" 
-                  onChange={(e) => {
-                    if(e.target.checked) setLearnedIds([...learnedIds, skill.id]);
-                    else setLearnedIds(learnedIds.filter(id => id !== skill.id));
-                  }}
-                />
-              </label>
-            )) : (
-              <p className="text-xs text-slate-500 italic p-4 bg-slate-900/40 rounded-2xl border border-dashed border-slate-800">
-                No matching "Wanted" skills found for this session.
+          <div className="custom-scrollbar max-h-48 space-y-2 overflow-y-auto pr-2">
+            {availableSkills.length > 0 ? (
+              availableSkills.map((skill) => {
+                const checked = learnedIds.includes(skill.id);
+                return (
+                  <label
+                    key={skill.id}
+                    className="flex cursor-pointer items-center justify-between rounded-2xl border border-slate-800 bg-slate-900/40 p-4 text-sm text-slate-200 hover:border-slate-600 transition-colors"
+                  >
+                    <span className="font-medium">{skill.name}</span>
+                    <input
+                      type="checkbox"
+                      className="h-5 w-5 rounded border-slate-700 bg-slate-950 text-blue-600"
+                      checked={checked}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setLearnedIds([...learnedIds, skill.id]);
+                        } else {
+                          setLearnedIds(
+                            learnedIds.filter((id) => id !== skill.id),
+                          );
+                        }
+                      }}
+                    />
+                  </label>
+                );
+              })
+            ) : (
+              <p className="rounded-2xl border border-dashed border-slate-800 bg-slate-900/40 p-4 text-xs italic text-slate-500">
+                No overlapping “want” skills detected for this partner. You can
+                still rate the experience.
               </p>
             )}
           </div>
         </div>
 
         <div className="flex gap-3 pt-4">
-          <button onClick={onClose} className="flex-1 py-4 rounded-2xl border border-slate-800 text-sm font-semibold text-slate-400 hover:bg-slate-900 transition-colors">Not yet</button>
-          <button 
-            onClick={handleSubmit} 
-            disabled={submitting}
-            className="flex-1 py-4 rounded-2xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-500 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 rounded-2xl border border-slate-800 py-4 text-sm font-semibold text-slate-400 hover:bg-slate-900 transition-colors"
           >
-            {submitting ? <Loader2 className="animate-spin w-4 h-4" /> : "Finalize Swap"}
+            Not yet
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-blue-600 py-4 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-50 transition-colors"
+          >
+            {submitting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              'Finalize swap'
+            )}
           </button>
         </div>
       </motion.div>
@@ -131,47 +846,61 @@ function FinishModal({ match, userId, onClose, onComplete }) {
   );
 }
 
-export default function Inbox({ session }) {
+// --- MAIN PAGE COMPONENT ---
+export default function Inbox({ session, refreshNotifications }) {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [mutualMatches, setMutualMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMatch, setSelectedMatch] = useState(null);
+  const [allSkillsMap, setAllSkillsMap] = useState({});
 
   useEffect(() => {
     if (session?.user?.id) {
       fetchAllData();
-
-      // Listen for handshake updates in skill_matches
-      const channel = supabase
-        .channel('match-updates')
-        .on('postgres_changes', 
-          { event: 'UPDATE', schema: 'public', table: 'skill_matches' }, 
-          () => fetchAllData()
-        )
-        .subscribe();
-
-      return () => supabase.removeChannel(channel);
+      fetchMasterSkillList();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.user?.id]);
+
+  const fetchMasterSkillList = async () => {
+    const { data } = await supabase
+      .from('skill_skills')
+      .select('id, name');
+    if (data) {
+      const map = {};
+      data.forEach((s) => {
+        map[s.id] = s.name;
+      });
+      setAllSkillsMap(map);
+    }
+  };
 
   const fetchAllData = async () => {
     setLoading(true);
-    
+
+    // Pending requests where you are receiver
     const { data: incoming } = await supabase
       .from('skill_matches')
       .select('*, requester:skill_profiles!requester_id(*)')
       .eq('receiver_id', session.user.id)
-      .eq('status', 'pending');
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
 
+    // Accepted + Completed matches where you are involved
     const { data: accepted } = await supabase
       .from('skill_matches')
-      .select(`
+      .select(
+        `
         *,
         requester:skill_profiles!requester_id(*),
         receiver:skill_profiles!receiver_id(*)
-      `)
+      `,
+      )
       .in('status', ['accepted', 'completed'])
-      .or(`requester_id.eq.${session.user.id},receiver_id.eq.${session.user.id}`);
+      .or(
+        `requester_id.eq.${session.user.id},receiver_id.eq.${session.user.id}`,
+      )
+      .order('created_at', { ascending: false });
 
     setPendingRequests(incoming || []);
     setMutualMatches(accepted || []);
@@ -179,52 +908,96 @@ export default function Inbox({ session }) {
   };
 
   const handleAction = async (matchId, newStatus) => {
+    // Optimistic Update: Remove visually immediately
+    setPendingRequests(prev => prev.filter(req => req.id !== matchId));
+
     const { error } = await supabase
       .from('skill_matches')
       .update({ status: newStatus })
       .eq('id', matchId);
-    if (!error) fetchAllData();
+
+    if (!error) {
+      fetchAllData();
+      // FORCE NOTIFICATION UPDATE
+      if (refreshNotifications) refreshNotifications();
+    } else {
+      // Revert if error
+      fetchAllData(); 
+      alert('Error updating request');
+    }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#020617]">
-        <MessageSquare className="w-8 h-8 text-slate-700 animate-pulse" />
+        <MessageSquare className="h-8 w-8 animate-pulse text-slate-700" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-14 px-4 md:px-6 space-y-14 pb-32">
+    <div className="mx-auto max-w-5xl space-y-14 px-4 pb-32 pt-14 md:px-6">
       <header className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Skillr · Inbox</p>
-        <h1 className="text-3xl md:text-4xl font-semibold text-slate-50">Introductions & Skill Syncs</h1>
-        <p className="text-sm text-slate-400 max-w-xl">Verify requests and finalize completed learning swaps.</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+          Skillr · Inbox
+        </p>
+        <h1 className="text-3xl md:text-4xl font-semibold text-slate-50">
+          Introductions & Skill Syncs
+        </h1>
+        <p className="max-w-xl text-sm text-slate-400">
+          Accept new requests, complete swaps, and track which skills you actually
+          mastered with each partner.
+        </p>
       </header>
 
-      {/* Pending requests section */}
+      {/* Section: Pending Requests */}
       <section className="space-y-5">
-        <h2 className="text-sm font-semibold text-slate-200">Pending requests ({pendingRequests.length})</h2>
+        <h2 className="text-sm font-semibold text-slate-200">
+          Incoming match signals ({pendingRequests.length})
+        </h2>
         {pendingRequests.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 px-6 py-8 text-sm text-slate-400">
-            No incoming connection requests.
+            No incoming signals.
           </div>
         ) : (
           <div className="space-y-3">
             <AnimatePresence>
               {pendingRequests.map((req) => (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} key={req.id} 
-                  className="rounded-2xl border border-slate-800 bg-slate-900/70 px-5 py-4 flex items-center justify-between">
+                <motion.div
+                  key={req.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900/70 px-5 py-4"
+                >
                   <div className="flex items-center gap-4">
-                    <img src={req.requester.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${req.requester.full_name}`} className="h-11 w-11 rounded-2xl object-cover border border-slate-700 bg-slate-950" alt="" />
-                    <div>
-                      <p className="text-sm font-semibold text-slate-50">{req.requester.full_name}</p>
-                      <p className="text-[11px] text-slate-400">Incoming match signal</p>
-                    </div>
+                    <img
+                      src={
+                        req.requester.avatar_url ||
+                        `https://api.dicebear.com/7.x/avataaars/svg?seed=${req.requester.full_name}`
+                      }
+                      className="h-11 w-11 rounded-2xl border border-slate-700 bg-slate-950 object-cover"
+                      alt=""
+                    />
+                    <p className="text-sm font-semibold text-slate-50">
+                      {req.requester.full_name}
+                    </p>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => handleAction(req.id, 'accepted')} className="h-9 w-9 flex items-center justify-center rounded-full bg-emerald-600/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/20 transition-colors"><Check className="w-4 h-4" /></button>
-                    <button onClick={() => handleAction(req.id, 'rejected')} className="h-9 w-9 flex items-center justify-center rounded-full bg-red-600/5 text-red-400 border border-red-500/30 hover:bg-red-600/15 transition-colors"><X className="w-4 h-4" /></button>
+                    <button
+                      type="button"
+                      onClick={() => handleAction(req.id, 'accepted')}
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-600/10 text-emerald-400 hover:bg-emerald-600/20"
+                    >
+                      <Check size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleAction(req.id, 'rejected')}
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-red-500/30 bg-red-600/5 text-red-400 hover:bg-red-600/15"
+                    >
+                      <X size={16} />
+                    </button>
                   </div>
                 </motion.div>
               ))}
@@ -233,83 +1006,138 @@ export default function Inbox({ session }) {
         )}
       </section>
 
-      {/* Established syncs section */}
+      {/* Section: Established / Completed Syncs */}
       <section className="space-y-5">
-        <h2 className="text-sm font-semibold text-slate-200">Established Syncs</h2>
+        <h2 className="text-sm font-semibold text-slate-200">
+          Mastery history & active syncs
+        </h2>
         <div className="grid grid-cols-1 gap-5">
-          {mutualMatches.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 px-6 py-8 text-sm text-slate-400">No active or completed connections.</div>
-          ) : mutualMatches.map((match) => {
+          {mutualMatches.map((match) => {
             const isRequester = match.requester_id === session.user.id;
             const partner = isRequester ? match.receiver : match.requester;
-            
-            const userFinished = isRequester ? match.requester_finished : match.receiver_finished;
-            const partnerFinished = isRequester ? match.receiver_finished : match.requester_finished;
+
+            const userFinished = isRequester
+              ? match.requester_finished
+              : match.receiver_finished;
+            const partnerFinished = isRequester
+              ? match.receiver_finished
+              : match.requester_finished;
+
+            const userRating = isRequester
+              ? match.requester_rating
+              : match.receiver_rating;
+
             const isCompleted = match.status === 'completed';
 
+            // show rating modal when:
+            // - status accepted and this user not finished, OR
+            // - status completed but this user has no rating yet
+            const needsReview =
+              (!isCompleted && !userFinished) ||
+              (isCompleted && !userRating);
+
+            const myLearnedIds = isRequester
+              ? match.requester_learned_ids
+              : match.receiver_learned_ids;
+
             return (
-              <article key={match.id} className={`rounded-3xl border ${isCompleted ? 'border-emerald-900/30 bg-emerald-900/5' : 'border-slate-800 bg-slate-900/80'} px-6 py-6 flex flex-col gap-6`}>
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <article
+                key={match.id}
+                className={`flex flex-col gap-6 rounded-3xl border px-6 py-6 ${
+                  isCompleted
+                    ? 'border-emerald-900/30 bg-emerald-900/5'
+                    : 'border-slate-800 bg-slate-900/80'
+                }`}
+              >
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                   <div className="flex items-center gap-4">
-                    <img src={partner.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${partner.full_name}`} className="h-14 w-14 rounded-2xl object-cover border border-slate-700 bg-slate-950" alt="" />
+                    <img
+                      src={
+                        partner.avatar_url ||
+                        `https://api.dicebear.com/7.x/avataaars/svg?seed=${partner.full_name}`
+                      }
+                      className="h-14 w-14 rounded-2xl border border-slate-700 bg-slate-950 object-cover"
+                      alt=""
+                    />
                     <div>
-                      <p className="text-sm font-semibold text-slate-50">{partner.full_name}</p>
-                      <div className="flex gap-2 mt-1">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isCompleted ? 'bg-emerald-500/20 text-emerald-400' : 'bg-blue-500/20 text-blue-400'}`}>
-                          {isCompleted ? "SYNC COMPLETE" : "ACTIVE SESSION"}
-                        </span>
-                      </div>
+                      <p className="text-sm font-semibold text-slate-50">
+                        {partner.full_name}
+                      </p>
+                      <span
+                        className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                          isCompleted
+                            ? 'bg-emerald-500/20 text-emerald-400'
+                            : 'bg-blue-500/20 text-blue-400'
+                        }`}
+                      >
+                        {isCompleted ? 'SYNC COMPLETE' : 'ACTIVE SESSION'}
+                      </span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    {!isCompleted && partnerFinished && !userFinished && (
-                      <div className="flex flex-col items-end gap-2">
-                        <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest animate-pulse">
-                          {partner.full_name} requested to finish
-                        </span>
-                        <button
-                          onClick={() => setSelectedMatch(match)}
-                          className="bg-amber-500 text-black px-5 py-2 rounded-full text-xs font-bold hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20"
-                        >
-                          Accept Handshake
-                        </button>
-                      </div>
-                    )}
-
-                    {!isCompleted && !partnerFinished && !userFinished && (
+                    {needsReview && (
                       <button
+                        type="button"
                         onClick={() => setSelectedMatch(match)}
-                        className="bg-slate-50 text-slate-950 px-5 py-2.5 rounded-full text-xs font-bold hover:bg-white transition-all shadow-xl active:scale-95"
+                        className="rounded-full bg-slate-50 px-5 py-2.5 text-xs font-bold text-slate-950 hover:bg-slate-200"
                       >
-                        Finish Swap
+                        {isCompleted ? 'Rate this swap' : 'Finish swap'}
                       </button>
                     )}
 
                     {userFinished && !isCompleted && (
-                      <span className="text-[11px] font-bold text-slate-500 italic tracking-wide">
-                        Waiting for {partner.full_name}'s handshake...
+                      <span className="text-[11px] font-bold italic text-slate-500">
+                        Awaiting partner…
                       </span>
                     )}
 
-                    {isCompleted && (
+                    {!userFinished && partnerFinished && !isCompleted && (
+                      <span className="text-[11px] font-bold text-amber-500">
+                        Partner marked complete
+                      </span>
+                    )}
+
+                    {isCompleted && userRating && (
                       <div className="flex items-center gap-1.5 text-emerald-400">
                         <Trophy size={16} />
-                        <span className="text-xs font-black uppercase tracking-widest">Mastered</span>
+                        <span className="text-xs font-black uppercase tracking-widest">
+                          Rated {userRating}/5
+                        </span>
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Identity Reveal Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {isCompleted && myLearnedIds?.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    <span className="mb-1 flex w-full items-center gap-1 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                      <Award size={12} />
+                      Skills mastered
+                    </span>
+                    {myLearnedIds.map((id) => (
+                      <span
+                        key={id}
+                        className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[10px] font-bold uppercase text-emerald-400"
+                      >
+                        {allSkillsMap[id] || 'Skill'}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   <div className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950/60 px-4 py-3">
                     <Phone className="h-4 w-4 text-slate-500" />
-                    <span className="text-sm font-medium text-slate-300">{partner.contact_number || 'Identity Private'}</span>
+                    <span className="text-sm font-medium text-slate-300">
+                      {partner.contact_number || 'Private'}
+                    </span>
                   </div>
                   <div className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950/60 px-4 py-3">
                     <Mail className="h-4 w-4 text-slate-500" />
-                    <span className="text-sm font-medium text-slate-300">{partner.email}</span>
+                    <span className="text-sm font-medium text-slate-300">
+                      {partner.email}
+                    </span>
                   </div>
                 </div>
               </article>
@@ -320,10 +1148,10 @@ export default function Inbox({ session }) {
 
       <AnimatePresence>
         {selectedMatch && (
-          <FinishModal 
-            match={selectedMatch} 
-            userId={session.user.id} 
-            onClose={() => setSelectedMatch(null)} 
+          <FinishModal
+            match={selectedMatch}
+            userId={session.user.id}
+            onClose={() => setSelectedMatch(null)}
             onComplete={() => {
               setSelectedMatch(null);
               fetchAllData();
