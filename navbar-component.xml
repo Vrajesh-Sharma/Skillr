@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<footer class="bottom-navigation">
+    <nav class="nav-container">
+        <navItem id="feed" active="true">
+            <icon>Zap</icon>
+            <label>Feed</label>
+            <path>/</path>
+        </navItem>
+        <navItem id="inbox">
+            <icon>Mail</icon>
+            <label>Inbox</label>
+            <path>/inbox</path>
+        </navItem>
+        <navItem id="profile">
+            <icon>User</icon>
+            <label>Profile</label>
+            <path>/profile</path>
+        </navItem>
+    </nav>
+</footer>
