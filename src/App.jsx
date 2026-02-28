@@ -121,7 +121,8 @@ import Dashboard from './pages/Dashboard';
 import Inbox from './pages/Inbox';
 
 // Components
-import Navbar from './components/Navbar';
+// import Navbar from './components/Navbar';
+import XMLNavbar from './components/XMLNavbar';
 
 export default function App() {
   const [session, setSession] = useState(null);
@@ -259,7 +260,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
-        <Navbar unreadCount={unreadCount} />
+        <XMLNavbar unreadCount={unreadCount} />
       </div>
     </Router>
   );
